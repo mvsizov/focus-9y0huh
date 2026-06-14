@@ -9,6 +9,7 @@ build.py — собирает statиc HTML дашборд из vault.
 """
 from __future__ import annotations
 
+import html
 import os
 import re
 import subprocess
@@ -16,6 +17,36 @@ from datetime import datetime
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from markupsafe import Markup
+
+
+# ────────── inline markdown renderer ──────────
+
+MD_LINK_RE     = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")             # [text](url)
+MD_AUTOLINK_RE = re.compile(r"&lt;(https?://[^\s&]+)&gt;")           # <https://…>
+MD_BARE_URL_RE = re.compile(r"(?<![\"'>])(https?://\S+)")            # голый https://…
+MD_WIKI_RE     = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")     # [[target]] / [[target|label]]
+MD_BOLD_RE     = re.compile(r"\*\*([^*]+)\*\*")                     # **bold**
+MD_CODE_RE     = re.compile(r"`([^`]+)`")                           # `code`
+
+
+def md_inline(text: str) -> Markup:
+    """Минимальный inline-markdown в HTML. На вход — сырая строка из vault."""
+    if not text:
+        return Markup("")
+    s = html.escape(text)
+    # Сначала explicit [text](url), потом <…autolink>, потом голые URL
+    s = MD_LINK_RE.sub(
+        lambda m: f'<a href="{m.group(2)}" rel="noopener" target="_blank">{m.group(1)}</a>', s)
+    s = MD_AUTOLINK_RE.sub(
+        lambda m: f'<a href="{m.group(1)}" rel="noopener" target="_blank">{m.group(1)}</a>', s)
+    s = MD_BARE_URL_RE.sub(
+        lambda m: f'<a href="{m.group(1)}" rel="noopener" target="_blank">{m.group(1)}</a>', s)
+    s = MD_WIKI_RE.sub(
+        lambda m: f'<span class="wiki">{m.group(2) or m.group(1)}</span>', s)
+    s = MD_CODE_RE.sub(r"<code>\1</code>", s)
+    s = MD_BOLD_RE.sub(r"<strong>\1</strong>", s)
+    return Markup(s)
 
 ROOT = Path(__file__).parent
 VAULT = Path(os.path.expanduser("~/vault"))
@@ -93,8 +124,9 @@ def main() -> int:
         loader=FileSystemLoader(str(ROOT / "templates")),
         autoescape=select_autoescape(["html"]),
     )
+    env.filters["md"] = md_inline
     tpl = env.get_template("index.html")
-    html = tpl.render(
+    rendered = tpl.render(
         now=vault_last_commit_time(),
         focus=read_focus(),
         tasks=read_open_tasks(),
@@ -103,8 +135,8 @@ def main() -> int:
     )
     out = ROOT / "docs" / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(html, encoding="utf-8")
-    print(f"wrote {out} ({len(html)} bytes)")
+    out.write_text(rendered, encoding="utf-8")
+    print(f"wrote {out} ({len(rendered)} bytes)")
     return 0
 
 

@@ -3,89 +3,294 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Фокус</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>focus · mikhail sizov</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap"
+    rel="stylesheet">
   <style>
-    body { -webkit-tap-highlight-color: transparent; background: #0b0f14; }
-    .card { background: #141b24; border: 1px solid #1f2937; border-radius: 14px; }
-    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    :root {
+      --bg: #fcfcfd;
+      --paper: #ffffff;
+      --surface: #f6f7f9;
+      --surface-strong: #f2f4f7;
+      --ink: #0b0d14;
+      --muted: #646c78;
+      --line: #e6e9ef;
+      --line-strong: #d5dbe5;
+      --accent: #0b0d14;
+      --radius-lg: 18px;
+      --shadow-soft: 0 20px 40px -36px rgba(15, 20, 34, 0.7);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 100% 0%, #ffffff 0%, var(--bg) 62%, #f7f8fb 100%);
+      color: var(--ink);
+      font-family: "Onest", "Space Grotesk", system-ui, sans-serif;
+      line-height: 1.45;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bg-grid {
+      position: fixed; inset: 0; z-index: -2; pointer-events: none;
+      background-image:
+        linear-gradient(to right, rgba(11,13,20,.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(11,13,20,.04) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at 50% 10%, black 0%, transparent 84%);
+    }
+    .noise-overlay {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      opacity: 0.04;
+      background-image: radial-gradient(circle at 1px 1px, #000 1px, transparent 0);
+      background-size: 3px 3px;
+    }
+
+    .topbar {
+      position: sticky; top: 0; z-index: 30;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      width: 100%;
+      padding: 1rem clamp(1rem, 3vw, 2.8rem);
+      background: rgba(252,252,253,.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 0.7rem; text-decoration: none; color: inherit; }
+    .brand-mark {
+      width: 2.2rem; height: 2.2rem; display: grid; place-items: center;
+      border: 1px solid var(--line-strong); border-radius: 999px;
+      font-family: "JetBrains Mono", monospace; font-size: .68rem; letter-spacing: .06em;
+      background: #fff;
+    }
+    .brand-name {
+      font-family: "JetBrains Mono", monospace; font-size: .72rem;
+      text-transform: uppercase; letter-spacing: .12em;
+    }
+    .stamp {
+      font-family: "JetBrains Mono", monospace; font-size: .68rem;
+      color: var(--muted); text-transform: uppercase; letter-spacing: .1em;
+    }
+
+    main { width: min(900px, 94vw); margin-inline: auto; padding-block: clamp(1.6rem, 4vw, 2.4rem); }
+
+    .eyebrow {
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .11em;
+      margin-bottom: .55rem;
+    }
+
+    section.block { margin-bottom: clamp(1.6rem, 3vw, 2.6rem); }
+    section.block h2 {
+      font-size: clamp(1.45rem, 3vw, 1.85rem);
+      font-weight: 600;
+      letter-spacing: -.01em;
+      margin: 0 0 1rem;
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: clamp(1rem, 2.4vw, 1.4rem);
+      box-shadow: var(--shadow-soft);
+    }
+
+    ol.focus, ul.tidy { list-style: none; padding: 0; margin: 0; }
+    ol.focus { counter-reset: focus; }
+    ol.focus li {
+      counter-increment: focus;
+      display: grid; grid-template-columns: 1.4rem 1fr; gap: .55rem;
+      padding: .5rem 0;
+      border-bottom: 1px solid var(--line);
+      font-size: .98rem;
+    }
+    ol.focus li:last-child { border-bottom: 0; }
+    ol.focus li::before {
+      content: counter(focus, decimal-leading-zero);
+      font-family: "JetBrains Mono", monospace;
+      font-size: .72rem;
+      color: var(--muted);
+      letter-spacing: .04em;
+      padding-top: .12rem;
+    }
+
+    ul.tasks li {
+      display: grid;
+      grid-template-columns: minmax(7.5rem, max-content) 1fr;
+      gap: 1rem;
+      padding: .6rem 0;
+      border-bottom: 1px solid var(--line);
+      font-size: .95rem;
+    }
+    ul.tasks li:last-child { border-bottom: 0; }
+    .task-meta {
+      font-family: "JetBrains Mono", monospace;
+      font-size: .68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      padding-top: .2rem;
+    }
+
+    ul.bare { list-style: none; padding: 0; margin: 0; }
+    ul.bare li { padding: .35rem 0; font-size: .95rem; }
+
+    .subblock { margin-top: 1.1rem; }
+    .subblock:first-child { margin-top: 0; }
+    .subblock h3 {
+      font-family: "JetBrains Mono", monospace;
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin: 0 0 .55rem;
+      font-weight: 500;
+    }
+
+    .empty { color: var(--muted); font-style: italic; }
+
+    a { color: var(--ink); }
+    a:hover { text-decoration: underline; }
+    code {
+      background: var(--surface);
+      padding: 0 .3rem;
+      border-radius: 6px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: .85em;
+    }
+    .wiki {
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: .82em;
+      padding: 0 .25rem;
+      border-radius: 4px;
+      background: var(--surface);
+    }
+
+    footer.foot {
+      width: min(900px, 94vw);
+      margin: 2.5rem auto 1.4rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid var(--line);
+      display: flex; justify-content: space-between;
+      font-family: "JetBrains Mono", monospace;
+      font-size: .68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    @media (max-width: 540px) {
+      ul.tasks li { grid-template-columns: 1fr; gap: .15rem; }
+      .task-meta { padding-top: 0; }
+    }
   </style>
 </head>
-<body class="text-slate-200 font-sans">
-  <div class="max-w-3xl mx-auto px-4 py-5 space-y-4">
+<body>
+  <div class="noise-overlay"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
 
-    <header class="flex items-baseline justify-between">
-      <h1 class="text-2xl font-bold tracking-tight">⚙️ Фокус</h1>
-      <span class="text-xs text-slate-500">2026-06-13 19:32</span>
-    </header>
+  <header class="topbar">
+    <a class="brand" href="https://msizov.com/">
+      <span class="brand-mark">MS</span>
+      <span class="brand-name">mikhail sizov · focus</span>
+    </a>
+    <span class="stamp">upd · 2026-06-13 19:32</span>
+  </header>
 
-    <section class="card p-4">
-      <h2 class="text-base font-semibold mb-3">🎯 Фокус сейчас</h2>
-      
-      <ol class="space-y-2 text-sm list-decimal list-inside">
-        <li>**Переезд в Австралию** 🇦🇺 🌏 — масштабная цель на 2026-2028</li><li>**Личный бренд** 📌 — свой сайт на GitHub Pages + контакты</li><li>**Learn AI** ⭐ — курс Claude</li><li>**Инвестиции** 📈 — поиск дивидендных акций</li><li>**Трансерфинг** 🚪 — поиск своей цели и двери</li>
-      </ol>
-      
+  <main>
+
+    <section class="block">
+      <div class="eyebrow">priorities</div>
+      <h2>🎯 Фокус сейчас</h2>
+      <div class="card">
+        
+        <ol class="focus">
+          <li><span><strong>Переезд в Австралию</strong> 🇦🇺 🌏 — масштабная цель на 2026-2028</span></li><li><span><strong>Личный бренд</strong> 📌 — свой сайт на GitHub Pages + контакты</span></li><li><span><strong>Learn AI</strong> ⭐ — курс Claude</span></li><li><span><strong>Инвестиции</strong> 📈 — поиск дивидендных акций</span></li><li><span><strong>Трансерфинг</strong> 🚪 — поиск своей цели и двери</span></li>
+        </ol>
+        
+      </div>
     </section>
 
-    <section class="card p-4">
-      <h2 class="text-base font-semibold mb-3">📋 Открытые задачи</h2>
-      
-      <ul class="space-y-2 text-sm">
+    <section class="block">
+      <div class="eyebrow">todo</div>
+      <h2>📋 Открытые задачи</h2>
+      <div class="card">
         
-        <li class="flex gap-3 items-start">
-          <span class="pill bg-slate-700 text-slate-300 whitespace-nowrap">2026-06-09 (вторник)</span>
-          <span>**Свести подкаст** 🎙 (выпуск 2 с Колей Коротаевым)</span>
-        </li>
+        <ul class="tasks tidy">
+          
+          <li>
+            <span class="task-meta">2026-06-09 (вторник)</span>
+            <span><strong>Свести подкаст</strong> 🎙 (выпуск 2 с Колей Коротаевым)</span>
+          </li>
+          
+          <li>
+            <span class="task-meta">2026-06-30 (конец июня)</span>
+            <span><strong>Пройти LLM Zoomcamp</strong> 🧠 — DataTalks.Club, <a href="https://github.com/DataTalksClub/llm-zoomcamp" rel="noopener" target="_blank">https://github.com/DataTalksClub/llm-zoomcamp</a> → <span class="wiki">topics/Изучить#AI</span></span>
+          </li>
+          
+          <li>
+            <span class="task-meta">2026-07-04 (пятница)</span>
+            <span><strong>Встреча со студентами по Asset Pricing</strong> 📚</span>
+          </li>
+          
+          <li>
+            <span class="task-meta">2026-07-17 (июль)</span>
+            <span><strong>Переделать счёт Наталье из Альфы в другой банк</strong> 🚨</span>
+          </li>
+          
+        </ul>
         
-        <li class="flex gap-3 items-start">
-          <span class="pill bg-slate-700 text-slate-300 whitespace-nowrap">2026-06-30 (конец июня)</span>
-          <span>**Пройти LLM Zoomcamp** 🧠 — DataTalks.Club, <https://github.com/DataTalksClub/llm-zoomcamp> → [[topics/Изучить#AI]]</span>
-        </li>
-        
-        <li class="flex gap-3 items-start">
-          <span class="pill bg-slate-700 text-slate-300 whitespace-nowrap">2026-07-04 (пятница)</span>
-          <span>**Встреча со студентами по Asset Pricing** 📚</span>
-        </li>
-        
-        <li class="flex gap-3 items-start">
-          <span class="pill bg-slate-700 text-slate-300 whitespace-nowrap">2026-07-17 (июль)</span>
-          <span>**Переделать счёт Наталье из Альфы в другой банк** 🚨</span>
-        </li>
-        
-      </ul>
-      
+      </div>
     </section>
 
     
-    <section class="card p-4">
-      <h2 class="text-base font-semibold mb-3">📚 Изучить</h2>
-      
-      <h3 class="text-sm font-semibold text-sky-400 mb-1.5">ML in Risks</h3>
-      <ul class="space-y-1 text-sm mb-2">
-        <li>· GAM (Generalized Additive Models)</li>
-      </ul>
-      
-      <h3 class="text-sm font-semibold text-sky-400 mb-1.5">AI</h3>
-      <ul class="space-y-1 text-sm mb-2">
-        <li>· **LLM Zoomcamp** (DataTalks.Club) — <https://github.com/DataTalksClub/llm-zoomcamp> 📅 до 2026-06-30</li>
-      </ul>
-      
+    <section class="block">
+      <div class="eyebrow">learn</div>
+      <h2>📚 Изучить</h2>
+      <div class="card">
+        
+        <div class="subblock">
+          <h3>ML in Risks</h3>
+          <ul class="bare">
+            <li>· GAM (Generalized Additive Models)</li>
+          </ul>
+        </div>
+        
+        <div class="subblock">
+          <h3>AI</h3>
+          <ul class="bare">
+            <li>· <strong>LLM Zoomcamp</strong> (DataTalks.Club) — <a href="https://github.com/DataTalksClub/llm-zoomcamp" rel="noopener" target="_blank">https://github.com/DataTalksClub/llm-zoomcamp</a> 📅 до 2026-06-30</li>
+          </ul>
+        </div>
+        
+      </div>
     </section>
     
 
     
-    <section class="card p-4">
-      <h2 class="text-base font-semibold mb-3">📖 Сейчас читаю</h2>
-      <ul class="space-y-1 text-sm">
-        <li>· Моделирование клиентского поведения и рисков ALM и ликвидности банка — учебник Сбера (с 2026-06-06)</li><li>· AI Engineering: Building Applications With Foundation Models — Chip Huyen (с 2026-06-08)</li>
-      </ul>
+    <section class="block">
+      <div class="eyebrow">reading</div>
+      <h2>📖 Сейчас читаю</h2>
+      <div class="card">
+        <ul class="bare">
+          <li>· Моделирование клиентского поведения и рисков ALM и ликвидности банка — учебник Сбера (с 2026-06-06)</li><li>· AI Engineering: Building Applications With Foundation Models — Chip Huyen (с 2026-06-08)</li>
+        </ul>
+      </div>
     </section>
     
 
-    <footer class="text-center text-xs text-slate-500 py-3">
-      Обновлено: 2026-06-13 19:32
-    </footer>
-  </div>
+  </main>
+
+  <footer class="foot">
+    <span>focus · auto-generated from vault</span>
+    <span>2026-06-13 19:32</span>
+  </footer>
 </body>
 </html>
