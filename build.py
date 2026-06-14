@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import os
 import re
+import subprocess
 from datetime import datetime
 from pathlib import Path
 
@@ -75,6 +76,18 @@ def read_study() -> list[dict]:
     return [s for s in sections if s["todo"]]
 
 
+def vault_last_commit_time() -> str:
+    """Берём время последнего vault-коммита — стабильно между запусками build."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(VAULT), "log", "-1", "--format=%cd",
+             "--date=format:%Y-%m-%d %H:%M"],
+            check=True, capture_output=True, text=True)
+        return out.stdout.strip()
+    except Exception:
+        return datetime.now().strftime("%Y-%m-%d %H:%M")
+
+
 def main() -> int:
     env = Environment(
         loader=FileSystemLoader(str(ROOT / "templates")),
@@ -82,7 +95,7 @@ def main() -> int:
     )
     tpl = env.get_template("index.html")
     html = tpl.render(
-        now=datetime.now().strftime("%Y-%m-%d %H:%M"),
+        now=vault_last_commit_time(),
         focus=read_focus(),
         tasks=read_open_tasks(),
         books=read_books_current(),
