@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Фокус</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { -webkit-tap-highlight-color: transparent; background: #0b0f14; }
+    .card { background: #141b24; border: 1px solid #1f2937; border-radius: 14px; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  </style>
+</head>
+<body class="text-slate-200 font-sans">
+  <div class="max-w-3xl mx-auto px-4 py-5 space-y-4">
+
+    <header class="flex items-baseline justify-between">
+      <h1 class="text-2xl font-bold tracking-tight">⚙️ Фокус</h1>
+      <span class="text-xs text-slate-500">{{ now }}</span>
+    </header>
+
+    <section class="card p-4">
+      <h2 class="text-base font-semibold mb-3">🎯 Фокус сейчас</h2>
+      {% if focus %}
+      <ol class="space-y-2 text-sm list-decimal list-inside">
+        {% for item in focus %}<li>{{ item|safe }}</li>{% endfor %}
+      </ol>
+      {% else %}<p class="text-slate-500 text-sm">пусто</p>{% endif %}
+    </section>
+
+    <section class="card p-4">
+      <h2 class="text-base font-semibold mb-3">📋 Открытые задачи</h2>
+      {% if tasks %}
+      <ul class="space-y-2 text-sm">
+        {% for t in tasks %}
+        <li class="flex gap-3 items-start">
+          <span class="pill bg-slate-700 text-slate-300 whitespace-nowrap">{{ t.section }}</span>
+          <span>{{ t.text|safe }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}<p class="text-slate-500 text-sm">всё закрыто 🎉</p>{% endif %}
+    </section>
+
+    {% if study %}
+    <section class="card p-4">
+      <h2 class="text-base font-semibold mb-3">📚 Изучить</h2>
+      {% for s in study %}
+      <h3 class="text-sm font-semibold text-sky-400 mb-1.5">{{ s.name }}</h3>
+      <ul class="space-y-1 text-sm mb-2">
+        {% for it in s.todo %}<li>· {{ it|safe }}</li>{% endfor %}
+      </ul>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    {% if books %}
+    <section class="card p-4">
+      <h2 class="text-base font-semibold mb-3">📖 Сейчас читаю</h2>
+      <ul class="space-y-1 text-sm">
+        {% for b in books %}<li>· {{ b }}</li>{% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    <footer class="text-center text-xs text-slate-500 py-3">
+      Обновлено: {{ now }}
+    </footer>
+  </div>
+</body>
+</html>
