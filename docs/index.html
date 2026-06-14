@@ -155,6 +155,24 @@
 
     .empty { color: var(--muted); font-style: italic; }
 
+    .reading-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(.8rem, 2vw, 1.1rem);
+    }
+    .reading-cat__name {
+      font-family: "JetBrains Mono", monospace;
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      font-weight: 500;
+      margin: 0 0 .55rem;
+    }
+    @media (max-width: 560px) {
+      .reading-grid { grid-template-columns: 1fr; }
+    }
+
     a { color: var(--ink); }
     a:hover { text-decoration: underline; }
     code {
@@ -201,7 +219,7 @@
       <span class="brand-mark">MS</span>
       <span class="brand-name">mikhail sizov · focus</span>
     </a>
-    <span class="stamp">upd · 2026-06-15 00:49</span>
+    <span class="stamp">upd · 2026-06-15 01:10</span>
   </header>
 
   <main>
@@ -278,10 +296,42 @@
     <section class="block">
       <div class="eyebrow">reading</div>
       <h2>📖 Сейчас читаю</h2>
-      <div class="card">
-        <ul class="bare">
-          <li>· Моделирование клиентского поведения и рисков ALM и ликвидности банка — учебник Сбера (с 2026-06-06)</li><li>· AI Engineering: Building Applications With Foundation Models — Chip Huyen (с 2026-06-08)</li><li>· $100M Offers — Alex Hormozi (с 2026-06-15)</li>
-        </ul>
+      <div class="reading-grid">
+        
+        <div class="card reading-cat">
+          <h3 class="reading-cat__name">Modelling</h3>
+          
+          <ul class="bare">
+            <li>· Моделирование клиентского поведения и рисков ALM и ликвидности банка — учебник Сбера (с 2026-06-06)</li>
+          </ul>
+          
+        </div>
+        
+        <div class="card reading-cat">
+          <h3 class="reading-cat__name">AI</h3>
+          
+          <ul class="bare">
+            <li>· AI Engineering: Building Applications With Foundation Models — Chip Huyen (с 2026-06-08)</li>
+          </ul>
+          
+        </div>
+        
+        <div class="card reading-cat">
+          <h3 class="reading-cat__name">Business</h3>
+          
+          <ul class="bare">
+            <li>· $100M Offers — Alex Hormozi (с 2026-06-15)</li>
+          </ul>
+          
+        </div>
+        
+        <div class="card reading-cat">
+          <h3 class="reading-cat__name">Investing</h3>
+          
+          <p class="empty">пусто</p>
+          
+        </div>
+        
       </div>
     </section>
     
@@ -290,7 +340,7 @@
 
   <footer class="foot">
     <span>focus · auto-generated from vault</span>
-    <span>2026-06-15 00:49</span>
+    <span>2026-06-15 01:10</span>
   </footer>
 </body>
 </html>
