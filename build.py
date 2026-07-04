@@ -54,6 +54,7 @@ VAULT = Path(os.path.expanduser("~/vault"))
 
 FOCUS_HEAD_RE = re.compile(r"^## 🎯 Фокус сейчас\s*$", re.M)
 NEXT_H2_RE = re.compile(r"^## ", re.M)
+BIG_GOAL_HEAD_RE = re.compile(r"^## 🟢 Масштабная цель\s*[—-]\s*(?P<title>.+?)\s*$", re.M)
 
 
 def read_focus() -> list[str]:
@@ -70,6 +71,37 @@ def read_focus() -> list[str]:
     ]
 
 
+def read_big_goal() -> dict | None:
+    """Секция `## 🟢 Масштабная цель — ...` из Проекты.md.
+    Возвращает {title, meaning, sections:[{name, items:[str]}]}.
+    """
+    txt = (VAULT / "Проекты.md").read_text(encoding="utf-8")
+    m = BIG_GOAL_HEAD_RE.search(txt)
+    if not m:
+        return None
+    title = m.group("title").strip()
+    rest = txt[m.end():]
+    end = NEXT_H2_RE.search(rest)
+    block = rest[: end.start() if end else len(rest)]
+
+    meaning = ""
+    sections: list[dict] = []
+    cur: dict | None = None
+    for raw in block.splitlines():
+        line = raw.strip()
+        if line.startswith("### "):
+            cur = {"name": line[4:].strip(), "todo": []}
+            sections.append(cur)
+        elif line.startswith("**Смысл:**"):
+            meaning = line[len("**Смысл:**"):].strip()
+        elif cur is not None and re.match(r"^- \[[ x]\] ", line):
+            done = line.startswith("- [x]")
+            text = line[6:].strip()
+            cur["todo"].append({"text": text, "done": done})
+    sections = [s for s in sections if s["todo"]]
+    return {"title": title, "meaning": meaning, "sections": sections}
+
+
 def read_open_tasks() -> list[dict]:
     txt = (VAULT / "reminders.md").read_text(encoding="utf-8")
     if "## ✅ Архив" in txt:
@@ -84,7 +116,11 @@ def read_open_tasks() -> list[dict]:
     return tasks
 
 
-def read_books_current() -> list[str]:
+def read_books_current() -> list[dict]:
+    """Список категорий с книгами: [{name, books: [str]}].
+    Категории — '### Foo' внутри секции '## 📖 Сейчас читаю'.
+    Если в Литература.md нет подзаголовков — возвращаем одну категорию 'all'.
+    """
     txt = (VAULT / "topics/Литература.md").read_text(encoding="utf-8")
     m = re.search(r"## 📖 Сейчас читаю\s*\n", txt)
     if not m:
@@ -92,7 +128,25 @@ def read_books_current() -> list[str]:
     rest = txt[m.end():]
     end = re.search(r"^## ", rest, re.M)
     block = rest[: end.start() if end else len(rest)]
-    return [l.strip()[2:].strip() for l in block.splitlines() if l.strip().startswith("- ")]
+
+    cats: list[dict] = []
+    cur: dict | None = None
+    has_subs = False
+    for raw in block.splitlines():
+        line = raw.strip()
+        if line.startswith("### "):
+            has_subs = True
+            cur = {"name": line[4:].strip(), "books": []}
+            cats.append(cur)
+        elif line.startswith("- "):
+            if cur is None:
+                cur = {"name": "Все", "books": []}
+                cats.append(cur)
+            cur["books"].append(line[2:].strip())
+    if not has_subs and not cats:
+        # ни одной книги
+        return []
+    return cats
 
 
 def read_study() -> list[dict]:
@@ -129,6 +183,7 @@ def main() -> int:
     rendered = tpl.render(
         now=vault_last_commit_time(),
         focus=read_focus(),
+        big_goal=read_big_goal(),
         tasks=read_open_tasks(),
         books=read_books_current(),
         study=read_study(),

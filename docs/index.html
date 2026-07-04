@@ -155,6 +155,36 @@
 
     .empty { color: var(--muted); font-style: italic; }
 
+    .big-goal .goal-title {
+      font-size: 1.05rem;
+      margin: 0 0 .5rem;
+      line-height: 1.3;
+    }
+    .big-goal .goal-meaning {
+      color: var(--muted);
+      font-size: .92rem;
+      margin: 0 0 1rem;
+      line-height: 1.45;
+    }
+    .goal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(.8rem, 2vw, 1.1rem);
+    }
+    .goal-section h3 {
+      font-family: "JetBrains Mono", monospace;
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      font-weight: 500;
+      margin: 0 0 .55rem;
+    }
+    .goal-item.done { color: var(--muted); text-decoration: line-through; }
+    @media (max-width: 560px) {
+      .goal-grid { grid-template-columns: 1fr; }
+    }
+
     .reading-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -223,6 +253,50 @@
   </header>
 
   <main>
+
+    
+    <section class="block big-goal">
+      <div class="eyebrow">north star</div>
+      <h2>🟢 Масштабная цель</h2>
+      <div class="card">
+        <p class="goal-title"><strong>Развитие в рисках и лидерстве + собесы в иностранные компании 🌍</strong></p>
+        <p class="goal-meaning">развиться максимально — чтобы можно было и в России расти, и при необходимости релоцироваться. Собесы в иностранные компании — не главная цель, а мотиватор развития и калибровка уровня.</p>
+        
+        <div class="goal-grid">
+          
+          <div class="goal-section">
+            <h3>🎯 Риски (профессиональная глубина)</h3>
+            <ul class="bare">
+              <li class="goal-item ">· Углубить ALM / IRRBB / ликвидность (учебник Сбера + 8-МР — сейчас читаю)</li><li class="goal-item ">· Прокачать количественные методы (модели, эконометрика, стресс-тесты)</li><li class="goal-item ">· Расширить экспертизу за пределы своего блока (кредитный, рыночный, операционный)</li><li class="goal-item ">· Публичность в теме — статьи / доклады / контент</li>
+            </ul>
+          </div>
+          
+          <div class="goal-section">
+            <h3>👥 Лидерство</h3>
+            <ul class="bare">
+              <li class="goal-item ">· Расти в роли (команда, влияние, ответственность)</li><li class="goal-item ">· Развивать коммуникацию / переговоры / влияние без формальной власти</li><li class="goal-item ">· Ментроство и рост людей вокруг</li>
+            </ul>
+          </div>
+          
+          <div class="goal-section">
+            <h3>🌍 Собесы в иностранные компании (мотиватор)</h3>
+            <ul class="bare">
+              <li class="goal-item ">· Составить список целевых компаний (риск / финтех, EU/UK/AU/APAC)</li><li class="goal-item ">· Подтянуть английский до уверенного собесного уровня</li><li class="goal-item ">· CV / LinkedIn — под международный рынок</li><li class="goal-item ">· Регулярные собесы для калибровки (1-2 в квартал)</li><li class="goal-item ">· Прокачать behavioral / STAR / case-интервью</li>
+            </ul>
+          </div>
+          
+          <div class="goal-section">
+            <h3>📚 Подготовка</h3>
+            <ul class="bare">
+              <li class="goal-item ">· Профильные книги и курсы (см. <span class="wiki">topics/Литература</span>)</li><li class="goal-item ">· Сертификации если релевантны (FRM / PRM / CFA)</li>
+            </ul>
+          </div>
+          
+        </div>
+        
+      </div>
+    </section>
+    
 
     <section class="block">
       <div class="eyebrow">priorities</div>
