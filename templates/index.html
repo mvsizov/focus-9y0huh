@@ -155,6 +155,7 @@
 
     .empty { color: var(--muted); font-style: italic; }
 
+    .big-goal .card + .card { margin-top: 1rem; }
     .big-goal .goal-title {
       font-size: 1.05rem;
       margin: 0 0 .5rem;
@@ -254,10 +255,11 @@
 
   <main>
 
-    {% if big_goal %}
+    {% if big_goals %}
     <section class="block big-goal">
       <div class="eyebrow">north star</div>
-      <h2>🟢 Масштабная цель</h2>
+      <h2>🟢 Масштабн{% if big_goals|length > 1 %}ые цели{% else %}ая цель{% endif %}</h2>
+      {% for big_goal in big_goals %}
       <div class="card">
         <p class="goal-title"><strong>{{ big_goal.title|md }}</strong></p>
         {% if big_goal.meaning %}<p class="goal-meaning">{{ big_goal.meaning|md }}</p>{% endif %}
@@ -274,6 +276,7 @@
         </div>
         {% endif %}
       </div>
+      {% endfor %}
     </section>
     {% endif %}
 

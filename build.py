@@ -71,35 +71,35 @@ def read_focus() -> list[str]:
     ]
 
 
-def read_big_goal() -> dict | None:
-    """Секция `## 🟢 Масштабная цель — ...` из Проекты.md.
-    Возвращает {title, meaning, sections:[{name, items:[str]}]}.
+def read_big_goals() -> list[dict]:
+    """Все секции `## 🟢 Масштабная цель — ...` из Проекты.md.
+    Возвращает [{title, meaning, sections:[{name, todo:[{text, done}]}]}, ...].
     """
     txt = (VAULT / "Проекты.md").read_text(encoding="utf-8")
-    m = BIG_GOAL_HEAD_RE.search(txt)
-    if not m:
-        return None
-    title = m.group("title").strip()
-    rest = txt[m.end():]
-    end = NEXT_H2_RE.search(rest)
-    block = rest[: end.start() if end else len(rest)]
+    goals: list[dict] = []
+    for m in BIG_GOAL_HEAD_RE.finditer(txt):
+        title = m.group("title").strip()
+        rest = txt[m.end():]
+        end = NEXT_H2_RE.search(rest)
+        block = rest[: end.start() if end else len(rest)]
 
-    meaning = ""
-    sections: list[dict] = []
-    cur: dict | None = None
-    for raw in block.splitlines():
-        line = raw.strip()
-        if line.startswith("### "):
-            cur = {"name": line[4:].strip(), "todo": []}
-            sections.append(cur)
-        elif line.startswith("**Смысл:**"):
-            meaning = line[len("**Смысл:**"):].strip()
-        elif cur is not None and re.match(r"^- \[[ x]\] ", line):
-            done = line.startswith("- [x]")
-            text = line[6:].strip()
-            cur["todo"].append({"text": text, "done": done})
-    sections = [s for s in sections if s["todo"]]
-    return {"title": title, "meaning": meaning, "sections": sections}
+        meaning = ""
+        sections: list[dict] = []
+        cur: dict | None = None
+        for raw in block.splitlines():
+            line = raw.strip()
+            if line.startswith("### "):
+                cur = {"name": line[4:].strip(), "todo": []}
+                sections.append(cur)
+            elif line.startswith("**Смысл:**"):
+                meaning = line[len("**Смысл:**"):].strip()
+            elif cur is not None and re.match(r"^- \[[ x]\] ", line):
+                done = line.startswith("- [x]")
+                text = line[6:].strip()
+                cur["todo"].append({"text": text, "done": done})
+        sections = [s for s in sections if s["todo"]]
+        goals.append({"title": title, "meaning": meaning, "sections": sections})
+    return goals
 
 
 def read_open_tasks() -> list[dict]:
@@ -183,7 +183,7 @@ def main() -> int:
     rendered = tpl.render(
         now=vault_last_commit_time(),
         focus=read_focus(),
-        big_goal=read_big_goal(),
+        big_goals=read_big_goals(),
         tasks=read_open_tasks(),
         books=read_books_current(),
         study=read_study(),
